@@ -1,0 +1,497 @@
+/* 색깔 모음: 여기서 한 번만 정해 두면 전체 색을 쉽게 바꿀 수 있습니다. */
+:root {
+  --color-bg: #0d1220;
+  --color-panel: #161d2e;
+  --color-panel-strong: #1e2739;
+  --color-border: #2b3650;
+  --color-text: #e6e8ee;
+  --color-muted: #9aa4b8;
+  --color-accent: #f2c14e;
+  --color-success: #6fcf97;
+  --color-error: #f28b82;
+
+  /* 한국어 글꼴을 우선으로 쓰고, 없으면 기본 글꼴을 씁니다. */
+  font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  color-scheme: dark;
+}
+
+/* 화면 여백을 없애고, 페이지 전체 높이를 채웁니다. */
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* 게임 내용을 가운데 정렬하고, 너무 넓어지지 않게 최대 너비를 정합니다. */
+.game {
+  box-sizing: border-box;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 상단 제목 영역: 좁은 화면에서는 줄바꿈되도록 합니다. */
+.game-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.game-title {
+  margin: 0;
+  font-size: clamp(20px, 4vw, 28px);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* 진행 상황은 알약 모양 배지로 보여 줍니다. */
+.progress {
+  margin: 0;
+  padding: 6px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background-color: var(--color-panel);
+  color: var(--color-accent);
+  font-size: 14px;
+}
+
+/* 교실 캔버스: 픽셀이 뭉개지지 않도록 선명하게 확대합니다. */
+.scene {
+  width: 100%;
+}
+
+.classroom {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 480 / 288;
+  border: 2px solid #000;
+  border-radius: 6px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  image-rendering: pixelated;
+}
+
+/* 조사 결과 패널 */
+.result-panel {
+  box-sizing: border-box;
+  min-height: 96px;
+  padding: 16px 20px;
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-accent);
+  border-radius: 8px;
+}
+
+.result-title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-accent);
+}
+
+/* 본문 글은 줄 간격을 넉넉하게 해서 읽기 편하게 합니다. */
+.result-text {
+  margin: 0;
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+/* 새 조사 결과가 나타날 때 살짝 떠오르는 효과 */
+.fade-in {
+  animation: fade-in 300ms ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 가방 영역 */
+.inventory {
+  box-sizing: border-box;
+  padding: 16px 20px;
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.inventory-label {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-muted);
+}
+
+/* 칸은 한 줄에 6개씩 같은 크기로 나란히 놓입니다. */
+.inventory-slots {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.slot {
+  aspect-ratio: 1 / 1;
+  background-color: var(--color-panel-strong);
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  transition: border-color 200ms ease, transform 200ms ease;
+}
+
+.slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slot:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+/* 아이템이 들어 있는 칸은 누를 수 있다는 표시로 손가락 모양 커서를 씁니다. */
+.slot.filled {
+  cursor: pointer;
+}
+
+/* 선택한 아이템 칸은 노란 테두리로 표시합니다. */
+.slot.selected {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(242, 193, 78, 0.35);
+}
+
+/* 가방 속 아이템 아이콘: 픽셀이 선명하게 보이도록 확대합니다. */
+.item-icon {
+  display: block;
+  width: 70%;
+  height: 70%;
+  image-rendering: pixelated;
+}
+
+/* 칠판과 사물함 대화상자 공통 스타일 */
+.game-dialog {
+  box-sizing: border-box;
+  width: min(440px, calc(100vw - 32px));
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-panel);
+  color: var(--color-text);
+}
+
+.game-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.dialog-text {
+  margin: 0 0 16px;
+  color: var(--color-muted);
+}
+
+/* 사물함 숫자 입력 */
+.code-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.code-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-panel-strong);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-align: center;
+}
+
+.code-message {
+  min-height: 24px;
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-error);
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.dialog-actions .dialog-close {
+  margin-top: 0;
+}
+
+.dialog-submit {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--color-accent);
+  color: #161d2e;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 200ms ease;
+}
+
+.dialog-submit:hover {
+  filter: brightness(1.08);
+}
+
+.dialog-title {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-accent);
+}
+
+/* 칠판 액자: 교실 그림의 칠판과 같은 나무 테두리 색을 씁니다. */
+.board-frame {
+  padding: 12px;
+  background-color: #8a6a4a;
+  border-radius: 8px;
+}
+
+.board-surface {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 200px;
+  padding: 40px 48px;
+  border-radius: 4px;
+  background-color: #1f3a33;
+  color: #e9f2e6;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* 칠판 네 모서리의 숫자 */
+.corner {
+  position: absolute;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.corner-tl {
+  top: 12px;
+  left: 14px;
+}
+
+.corner-tr {
+  top: 12px;
+  right: 14px;
+}
+
+.corner-bl {
+  bottom: 12px;
+  left: 14px;
+}
+
+.corner-br {
+  bottom: 12px;
+  right: 14px;
+}
+
+.chalk-title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.chalk-line {
+  margin: 0 0 8px;
+}
+
+.chalk-caption {
+  margin: 16px 0 4px;
+  font-size: 12px;
+  color: #b9cdc2;
+}
+
+/* 숨겨진 문장: 처음에는 거의 안 보이고, 마우스를 올리면 희미하게, 누르면 또렷하게 나타납니다. */
+.chalk-secret {
+  padding: 4px 8px;
+  border: none;
+  background: none;
+  font: inherit;
+  color: #2f514a;
+  cursor: pointer;
+  transition: color 300ms ease;
+}
+
+.chalk-secret:hover,
+.chalk-secret:focus-visible {
+  color: #9fc4b0;
+}
+
+.chalk-secret.is-revealed {
+  color: #e9f2e6;
+}
+
+.dialog-close {
+  margin-top: 16px;
+  padding: 8px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background-color: var(--color-panel-strong);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 200ms ease;
+}
+
+.dialog-close:hover {
+  border-color: var(--color-accent);
+}
+
+/* 다시 시작 버튼: 숨김 상태(hidden)일 때는 확실히 보이지 않게 합니다. */
+.restart-button {
+  margin-top: 16px;
+}
+
+.restart-button[hidden] {
+  display: none;
+}
+
+/* 피 묻은 쪽지: 크게 나타나며 얼룩이 보이는 종이입니다. */
+.blood-note-paper {
+  padding: 24px;
+  border-radius: 4px;
+  background-color: #e9e4d4;
+  background-image:
+    radial-gradient(circle at 82% 18%, rgba(122, 15, 20, 0.35) 0 14px, transparent 15px),
+    radial-gradient(circle at 14% 84%, rgba(122, 15, 20, 0.25) 0 10px, transparent 11px);
+  color: #3a0d10;
+  font-size: 18px;
+  line-height: 1.8;
+  animation: note-appear 400ms ease-out;
+}
+
+@keyframes note-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.6) rotate(-3deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* 작은 화면에서는 글자 크기와 여백을 줄입니다. */
+@media (max-width: 560px) {
+  .game {
+    padding: 16px 12px;
+  }
+
+  .result-panel,
+  .inventory {
+    padding: 12px 14px;
+  }
+}
+
+/* 움직임을 줄이고 싶은 사용자를 위해 애니메이션을 끕니다. */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in,
+  .slot {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* 오프닝 화면: 게임 위를 덮고, 시작하면 천천히 사라집니다. */
+.opening-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background-color: var(--color-bg);
+  transition: opacity 400ms ease;
+}
+
+.opening-screen.is-leaving {
+  opacity: 0;
+}
+
+.opening-screen[hidden] {
+  display: none;
+}
+
+.opening-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+}
+
+.opening-title {
+  margin: 0;
+  font-size: 48px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.opening-credit {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.opening-tip-button {
+  padding: 8px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background-color: transparent;
+  font: inherit;
+  font-size: 14px;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.opening-tip-button:hover {
+  background-color: var(--color-panel);
+}
+
+.opening-start {
+  padding: 12px 32px;
+  font-size: 18px;
+}
+
+@media (max-width: 560px) {
+  .opening-title {
+    font-size: 36px;
+  }
+}

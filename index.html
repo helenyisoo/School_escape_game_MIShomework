@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>학교 탈출</title>
+    <meta property="og:image" content="https://bolt.new/static/og_default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
+  </head>
+  <body>
+    <!-- 게임을 시작하기 전에 보이는 오프닝 화면입니다. 시작 버튼을 누르면 사라집니다. -->
+    <section id="opening-screen" class="opening-screen">
+      <div class="opening-card">
+        <h1 class="opening-title">학교 탈출</h1>
+        <p class="opening-credit">제작자 최이수</p>
+        <button type="button" id="tip-button" class="opening-tip-button">Tip 보기</button>
+        <button type="button" id="start-button" class="dialog-submit opening-start">게임 시작</button>
+      </div>
+    </section>
+
+    <dialog id="tip-dialog" class="game-dialog">
+      <h2 class="dialog-title">Tip</h2>
+      <p class="dialog-text">물건을 획득하면 하단 가방에서 확인할 수 있습니다. 물건을 사용해 상호작용하려면 한번 누르시고, 해제하고 싶으시면 한번 더 눌러주세요.</p>
+      <div class="dialog-actions">
+        <button type="button" class="dialog-close">닫기</button>
+      </div>
+    </dialog>
+
+    <!-- 게임 전체를 감싸는 큰 상자입니다. 위에서부터 제목, 교실, 조사 결과, 가방 순서로 배치됩니다. -->
+    <div class="game">
+      <!-- 상단: 게임 제목과 현재 진행 상황 -->
+      <header class="game-header">
+        <h1 class="game-title">학교 탈출</h1>
+        <p id="progress" class="progress"></p>
+      </header>
+
+      <!-- 가운데: 교실 그림이 그려지는 캔버스입니다. 그림 속 물건을 클릭할 수 있습니다. -->
+      <main class="scene">
+        <canvas id="classroom" class="classroom" width="480" height="288" aria-label="어두운 교실 그림. 물건을 클릭하면 조사 결과가 나타납니다."></canvas>
+      </main>
+
+      <!-- 조사 결과가 글로 나타나는 곳입니다. -->
+      <section class="result-panel" aria-live="polite">
+        <h2 id="result-title" class="result-title">교실</h2>
+        <p id="result-text" class="result-text fade-in">교실 안을 둘러보세요. 물건을 클릭하면 조사 결과가 나타납니다.</p>
+        <!-- 탈출 또는 게임 오버가 끝난 뒤에만 나타나는 다시 시작 버튼입니다. -->
+        <button type="button" id="restart-button" class="dialog-submit restart-button" hidden>처음부터 다시 시작</button>
+      </section>
+
+      <!-- 하단: 아이템을 보관하는 가방(인벤토리) 칸입니다. -->
+      <footer class="inventory">
+        <h2 class="inventory-label">가방</h2>
+        <ul class="inventory-slots">
+          <li class="slot" aria-label="빈 칸"></li>
+          <li class="slot" aria-label="빈 칸"></li>
+          <li class="slot" aria-label="빈 칸"></li>
+          <li class="slot" aria-label="빈 칸"></li>
+          <li class="slot" aria-label="빈 칸"></li>
+          <li class="slot" aria-label="빈 칸"></li>
+        </ul>
+      </footer>
+    </div>
+
+    <!-- 칠판을 눌렀을 때 나타나는 상세 보기 창입니다. -->
+    <!-- 칠판을 눌렀을 때 나타나는 상세 보기 창입니다. -->
+    <dialog id="board-dialog" class="game-dialog">
+      <h2 class="dialog-title">칠판</h2>
+      <div class="board-frame">
+        <div class="board-surface">
+          <span class="corner corner-tl">3</span>
+          <span class="corner corner-tr">1</span>
+          <span class="corner corner-bl">4</span>
+          <span class="corner corner-br">7</span>
+          <p class="chalk-title">마지막 시험</p>
+          <p class="chalk-line">집에 가야한다</p>
+          <p class="chalk-caption">지워진 자국이 희미하게 남아 있다. 손으로 문질러 보자.</p>
+          <button type="button" class="chalk-secret">멈춘 것은 시계가 아니라 시간이다.</button>
+        </div>
+      </div>
+      <button type="button" class="dialog-close">닫기</button>
+    </dialog>
+
+    <!-- 사물함을 눌렀을 때 나타나는 4자리 숫자 입력창입니다. -->
+    <dialog id="locker-dialog" class="game-dialog">
+      <h2 class="dialog-title">사물함</h2>
+      <p class="dialog-text">자물쇠에는 숫자 네 자리를 맞추는 다이얼이 달려 있다.</p>
+      <form id="locker-form" class="code-form">
+        <input id="locker-code" class="code-input" type="text" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="0000" aria-label="4자리 숫자" />
+        <p id="locker-message" class="code-message" aria-live="polite"></p>
+        <div class="dialog-actions">
+          <button type="button" class="dialog-close locker-cancel">닫기</button>
+          <button type="submit" class="dialog-submit">열기</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- 복도 끝 출구 문을 눌렀을 때 나타나는 질문 창입니다. -->
+    <dialog id="riddle-dialog" class="game-dialog">
+      <h2 class="dialog-title">출구 문</h2>
+      <p class="dialog-text">문에 작은 종이가 붙어 있다. "멈춰 있는 것은 무엇인가?"</p>
+      <form id="riddle-form" class="code-form">
+        <input id="riddle-code" class="code-input" type="text" autocomplete="off" maxlength="2" placeholder="_ _" aria-label="빈칸 두 칸에 들어갈 답" />
+        <p id="riddle-message" class="code-message" aria-live="polite"></p>
+        <div class="dialog-actions">
+          <button type="button" class="dialog-close riddle-cancel">닫기</button>
+          <button type="submit" class="dialog-submit">확인</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- 복도 바닥의 피 묻은 쪽지를 눌렀을 때 나타나는 상세 보기 창입니다. -->
+    <dialog id="blood-note-dialog" class="game-dialog">
+      <h2 class="dialog-title">쪽지</h2>
+      <div class="blood-note-paper">괴물이 모두 잡아먹었다.<br>출구도 잠겨버렸다.<br>나도 이제는....</div>
+      <button type="button" class="dialog-close">닫기</button>
+    </dialog>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
